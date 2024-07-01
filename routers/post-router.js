@@ -2,7 +2,8 @@ const express = require('express');
 // const multer = require('multer');
 const {
   createPost,
-  getAllPosts,
+  getAllFindMotelPosts,
+  getAllPassItemPosts,
   getPostById,
   updatePost,
   deletePost,
@@ -15,8 +16,9 @@ const postRouter = express.Router();
 //   storage: multer.memoryStorage(),
 // });
 postRouter
+.get('/motel', getAllFindMotelPosts)
+.get('/pass-item', getAllPassItemPosts)
   .post('/', checkAndVerifyToken, createPost)
-  .get('/', getAllPosts)
   .get('/:id', getPostById)
   .patch('/:id', checkAndVerifyToken, updatePost)
   .delete('/:id', checkAndVerifyToken, deletePost);

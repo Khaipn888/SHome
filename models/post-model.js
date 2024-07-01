@@ -10,7 +10,7 @@ const postSchema = new mongoose.Schema(
     },
     images: Array,
     price: {
-      type: String,
+      type: Number,
       required: [true, 'A post must have a price'],
     },
     address: {
@@ -45,7 +45,7 @@ const postSchema = new mongoose.Schema(
       type: String,
       require: [true, 'Missing contactPhone!']
     },
-    area: String,
+    area: Number,
   },
   { timestamps: true }
 );

@@ -33,12 +33,52 @@ const createPost = CatchAsync(async (req, res, next) => {
   });
 });
 
-const getAllPosts = CatchAsync(async (req, res, next) => {
-  // let filter = {};
-  if(!req?.currentUser || req?.currentUser?.role  !== 'admin') req.query.status = 'active';
+const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
+  if (!req?.currentUser || req?.currentUser?.role !== 'admin')
+    req.query.status = 'active';
+  let search = req.query.search || '';
+  let min_price = Number(req?.query?.min_price) || 0;
+  let max_price = Number(req?.query?.max_price) || 50000000;
+  let min_area = Number(req?.query?.min_area) || 0;
+  let max_area = Number(req?.query?.max_area) || 500;
+
+  console.log(min_area, max_area);
+  console.log(min_price, max_price);
+  const posts = new APIFeatures(
+    Post.find({
+      title: { $regex: search, $options: 'i' },
+      category: { $ne: 'pass-do' },
+      price: { $gte: min_price, $lte: max_price },
+      area: { $gte: min_area, $lte: max_area },
+    }).populate({
+      path: 'createBy',
+      select: ['userName', 'avatar'],
+    }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await posts.query;
+  res.status(200).json({
+    status: 'success',
+    results: result.length,
+    data: {
+      result,
+    },
+  });
+});
+
+const getAllPassItemPosts = CatchAsync(async (req, res, next) => {
+  if (!req?.currentUser || req?.currentUser?.role !== 'admin')
+    req.query.status = 'active';
   let search = req.query.search || '';
   const posts = new APIFeatures(
-    Post.find({ title: { $regex: search, $options: 'i' } }).populate({
+    Post.find({
+      title: { $regex: search, $options: 'i' },
+      category: 'pass-do',
+    }).populate({
       path: 'createBy',
       select: ['userName', 'avatar'],
     }),
@@ -105,7 +145,8 @@ const deletePost = CatchAsync(async (req, res, next) => {
 
 module.exports = {
   createPost,
-  getAllPosts,
+  getAllFindMotelPosts,
+  getAllPassItemPosts,
   getPostById,
   updatePost,
   deletePost,
