@@ -24,7 +24,7 @@ const createUser = CatchAsync(async (req, res, next) => {
 
 const getAllUsers = CatchAsync(async (req, res, next) => {
   req.query.role = 'user';
-  const users = new APIFeatures( User.find(), req.query)
+  const users = new APIFeatures(User.find(), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -104,6 +104,8 @@ const updateMe = CatchAsync(async (req, res, next) => {
 });
 
 const savePost = CatchAsync(async (req, res, next) => {
+  if (req.currentUser.postSaved.indexOf(req.body.postId) !== -1)
+    return next(new ErrorHandler('Post has been saved', 400));
   req.currentUser.postSaved.push(req.body.postId);
   const user = await User.findByIdAndUpdate(
     req.currentUser._id,
@@ -114,14 +116,14 @@ const savePost = CatchAsync(async (req, res, next) => {
     }
   );
   res.status(200).json({
-    status: 'success',
-    data: {
-      user,
-    },
+    status: 'success'
   });
 });
 
 const unsavePost = CatchAsync(async (req, res, next) => {
+  if (req.currentUser.postSaved.indexOf(req.body.postId) === -1)
+    return next(new ErrorHandler('Post not saved', 400));
+
   req.currentUser.postSaved = req.currentUser.postSaved.filter(
     (item) => item !== req.body.postId
   );
@@ -134,10 +136,7 @@ const unsavePost = CatchAsync(async (req, res, next) => {
     }
   );
   res.status(200).json({
-    status: 'success',
-    data: {
-      user,
-    },
+    status: 'success'
   });
 });
 
@@ -283,9 +282,6 @@ const unVote = CatchAsync(async (req, res, next) => {
     }
     res.status(201).json({
       status: 'success',
-      data: {
-        newVote,
-      },
     });
   });
 });
@@ -388,8 +384,7 @@ const approveQuestion = CatchAsync(async (req, res, next) => {
 
 const disablePost = CatchAsync(async (req, res, next) => {
   const { postId } = req.body;
-  if (!postId)
-    return next(new ErrorHandler('Missing input', 400));
+  if (!postId) return next(new ErrorHandler('Missing input', 400));
   const session = await startSession();
   session.withTransaction(async () => {
     const post = await Post.findOneAndUpdate(
