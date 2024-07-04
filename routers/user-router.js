@@ -8,6 +8,7 @@ const {
   unsavePost,
   vote,
   unVote,
+  getMyPostsSaved
 } = require('../controllers/user-controller');
 const {
   login,
@@ -25,6 +26,7 @@ const userRouter = express.Router();
 userRouter
   .get('/myself/:id', checkAndVerifyToken, getMe)
   .get('/my-posts/:id', checkAndVerifyToken, getMyPosts)
+  .get('/my-posts-saved/:id', checkAndVerifyToken, getMyPostsSaved)
   .post('/vote', checkAndVerifyToken, vote)
   .post('/unvote', checkAndVerifyToken, unVote)
   .post('/report', checkAndVerifyToken, createReport)

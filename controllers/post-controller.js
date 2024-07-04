@@ -42,8 +42,6 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
   let min_area = Number(req?.query?.min_area) || 0;
   let max_area = Number(req?.query?.max_area) || 500;
 
-  console.log(min_area, max_area);
-  console.log(min_price, max_price);
   const posts = new APIFeatures(
     Post.find({
       title: { $regex: search, $options: 'i' },

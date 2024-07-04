@@ -103,6 +103,30 @@ const updateMe = CatchAsync(async (req, res, next) => {
   });
 });
 
+const getMyPostsSaved = CatchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  if (userId !== req.currentUser._id.toString())
+    return next(new ErrorHandler('You do not have permission', 403));
+  const postsSaved = req.currentUser.postSaved;
+
+  const posts = new APIFeatures(
+    Post.find({ _id: { $in: postsSaved } }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await posts.query;
+  res.status(200).json({
+    status: 'success',
+    results: result.length,
+    data: {
+      result,
+    },
+  });
+});
+
 const savePost = CatchAsync(async (req, res, next) => {
   if (req.currentUser.postSaved.indexOf(req.body.postId) !== -1)
     return next(new ErrorHandler('Post has been saved', 400));
@@ -116,7 +140,7 @@ const savePost = CatchAsync(async (req, res, next) => {
     }
   );
   res.status(200).json({
-    status: 'success'
+    status: 'success',
   });
 });
 
@@ -136,7 +160,7 @@ const unsavePost = CatchAsync(async (req, res, next) => {
     }
   );
   res.status(200).json({
-    status: 'success'
+    status: 'success',
   });
 });
 
@@ -435,4 +459,5 @@ module.exports = {
   approveQuestion,
   disablePost,
   getMyPosts,
+  getMyPostsSaved
 };
