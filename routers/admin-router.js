@@ -20,9 +20,19 @@ const {
   deleteReport,
 } = require('../controllers/report-controller');
 
+const {
+  getAllFindMotelPosts,
+  getAllPassItemPosts,
+  getPostById,
+  updatePost,
+  deletePost,
+} = require('../controllers/post-controller');
+
 const adminRouter = express.Router();
 
 adminRouter
+  .get('/posts/motel', checkAndVerifyToken, checkAdmin, getAllFindMotelPosts)
+  .get('/posts/pass-item', checkAndVerifyToken, checkAdmin, getAllPassItemPosts)
   .get('/get-users', checkAndVerifyToken, checkAdmin, getAllUsers)
   .get('/get-reports', checkAndVerifyToken, checkAdmin, getAllReports)
   .get('/get-user/:id', checkAndVerifyToken, checkAdmin, getUserById)
