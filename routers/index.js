@@ -5,6 +5,7 @@ const authRouter = require('./auth-router');
 const answerRouter = require('./answer-router');
 const questionRouter = require('./question-router');
 const commentRouter = require('./comment-router');
+const notiRouter = require('./notification-router');
 const HandleError = require('../utils/ErrorHandler');
 const errorController = require('../controllers/error-controller');
 
@@ -16,6 +17,7 @@ const initRouter = (app) => {
   app.use('/api/questions', questionRouter);
   app.use('/api/answers', answerRouter);
   app.use('/api/comments', commentRouter);
+  app.use('/api/notifications', notiRouter);
 
   // app.all('*', (req, res, next) => {
   //   next(new HandleError(`Can't find ${req.originalUrl} on this server`), 404);

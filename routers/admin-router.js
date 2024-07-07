@@ -6,7 +6,7 @@ const {
   createUser,
   approvePost,
   approveQuestion,
-  disablePost
+  disablePost,
 } = require('../controllers/user-controller');
 const {
   checkAndVerifyToken,

@@ -34,13 +34,21 @@ const createPost = CatchAsync(async (req, res, next) => {
 });
 
 const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
-  if (!req?.currentUser || req?.currentUser?.role !== 'admin')
-    req.query.status = 'active';
+  let status = ['pending', 'active', 'disable'];
+  if (!req?.currentUser || req?.currentUser?.role !== 'admin') {
+    status = ['active'];
+  }
+  if (req?.currentUser?.role !== 'admin' && req.query?.status) {
+    status = [req.query.status];
+  }
   let search = req.query.search || '';
   let min_price = Number(req?.query?.min_price) || 0;
   let max_price = Number(req?.query?.max_price) || 50000000;
   let min_area = Number(req?.query?.min_area) || 0;
   let max_area = Number(req?.query?.max_area) || 500;
+  let province = req?.query?.province || '';
+  let district = req?.query?.district || '';
+  let ward = req?.query?.ward || '';
 
   const posts = new APIFeatures(
     Post.find({
@@ -48,6 +56,10 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
       category: { $ne: 'pass-do' },
       price: { $gte: min_price, $lte: max_price },
       area: { $gte: min_area, $lte: max_area },
+      status: { $in: status },
+      province: { $regex: province, $options: 'i' },
+      district: { $regex: district, $options: 'i' },
+      ward: { $regex: ward, $options: 'i' },
     }).populate({
       path: 'createBy',
       select: ['userName', 'avatar'],
@@ -69,13 +81,20 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
 });
 
 const getAllPassItemPosts = CatchAsync(async (req, res, next) => {
-  if (!req?.currentUser || req?.currentUser?.role !== 'admin')
-    req.query.status = 'active';
+  let status = ['active', 'pending', 'disable'];
+  if (!req?.currentUser || req?.currentUser?.role !== 'admin') {
+    status = ['active'];
+  }
+  if (req?.currentUser?.role !== 'admin' && req.query?.status) {
+    status = [req.query.status];
+  }
+
   let search = req.query.search || '';
   const posts = new APIFeatures(
     Post.find({
       title: { $regex: search, $options: 'i' },
       category: 'pass-do',
+      status: { $in: status },
     }).populate({
       path: 'createBy',
       select: ['userName', 'avatar'],

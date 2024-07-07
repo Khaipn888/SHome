@@ -27,7 +27,7 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, 'A post must be classified'],
-      enum: ["pass-do", "cho-thue-tro", "o-ghep"]
+      enum: ['pass-do', 'cho-thue-tro', 'o-ghep'],
     },
     tag: {
       type: String,
@@ -43,7 +43,7 @@ const postSchema = new mongoose.Schema(
     },
     contactPhone: {
       type: String,
-      require: [true, 'Missing contactPhone!']
+      require: [true, 'Missing contactPhone!'],
     },
     area: Number,
   },

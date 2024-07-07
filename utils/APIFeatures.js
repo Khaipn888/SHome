@@ -19,7 +19,8 @@ class APIFeatures {
       'max_area',
       'province',
       'district',
-      'ward'
+      'ward',
+      'status'
     ];
     excludedFields.forEach((el) => delete queryObj[el]);
 
