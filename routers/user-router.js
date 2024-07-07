@@ -6,9 +6,11 @@ const {
   getMyPosts,
   savePost,
   unsavePost,
+  saveQuestion,
+  unsaveQuestion,
   vote,
   unVote,
-  getMyPostsSaved
+  getMyPostsSaved,
 } = require('../controllers/user-controller');
 const {
   login,
@@ -17,9 +19,7 @@ const {
   updatePassword,
 } = require('../controllers/auth-controller');
 
-const {
-  createReport
-} = require('../controllers/report-controller');
+const { createReport } = require('../controllers/report-controller');
 
 const userRouter = express.Router();
 
@@ -34,6 +34,8 @@ userRouter
   .patch('/change-password', checkAndVerifyToken, updatePassword)
   .patch('/save-post', checkAndVerifyToken, savePost)
   .patch('/unsave-post', checkAndVerifyToken, unsavePost)
+  .patch('/save-question', checkAndVerifyToken, saveQuestion)
+  .patch('/unsave-question', checkAndVerifyToken, unsaveQuestion)
   .patch('/:id', checkAndVerifyToken, updateUser);
 
 module.exports = userRouter;

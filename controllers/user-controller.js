@@ -127,6 +127,55 @@ const getMyPostsSaved = CatchAsync(async (req, res, next) => {
   });
 });
 
+const getMyQuestionsSaved = CatchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  if (userId !== req.currentUser._id.toString())
+    return next(new ErrorHandler('You do not have permission', 403));
+  const questionsSaved = req.currentUser.questionSaved;
+
+  const questions = new APIFeatures(
+    Question.find({ _id: { $in: questionsSaved } }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await questions.query;
+  res.status(200).json({
+    status: 'success',
+    results: result.length,
+    data: {
+      result,
+    },
+  });
+});
+
+const getMyNotifications = CatchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  if (userId !== req.currentUser._id.toString())
+    return next(new ErrorHandler('You do not have permission', 403));
+
+  const notifications = new APIFeatures(
+    Noti.find({ notiFor: userId }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await notifications.query;
+  res.status(200).json({
+    status: 'success',
+    results: result.length,
+    data: {
+      result,
+    },
+  });
+});
+
+
+
 const savePost = CatchAsync(async (req, res, next) => {
   if (req.currentUser.postSaved.indexOf(req.body.postId) !== -1)
     return next(new ErrorHandler('Post has been saved', 400));
@@ -139,6 +188,7 @@ const savePost = CatchAsync(async (req, res, next) => {
       runValidators: true,
     }
   );
+  if(!user) return next(new ErrorHandler('Question not found', 404));
   res.status(200).json({
     status: 'success',
   });
@@ -159,6 +209,46 @@ const unsavePost = CatchAsync(async (req, res, next) => {
       runValidators: true,
     }
   );
+  if(!user) return next(new ErrorHandler('Post not found', 404));
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+const saveQuestion = CatchAsync(async (req, res, next) => {
+  if (req.currentUser.questionSaved.indexOf(req.body.questionId) !== -1)
+    return next(new ErrorHandler('Question has been saved', 400));
+  req.currentUser.questionSaved.push(req.body.questionId);
+  const user = await User.findByIdAndUpdate(
+    req.currentUser._id,
+    { questionSaved: req.currentUser.questionSaved },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if(!user) return next(new ErrorHandler('Post not found', 404));
+  res.status(200).json({
+    status: 'success',
+  });
+});
+
+const unsaveQuestion = CatchAsync(async (req, res, next) => {
+  if (req.currentUser.questionSaved.indexOf(req.body.questionId) === -1)
+    return next(new ErrorHandler('question not saved', 400));
+
+  req.currentUser.questionSaved = req.currentUser.questionSaved.filter(
+    (item) => item !== req.body.questionId
+  );
+  const user = await User.findByIdAndUpdate(
+    req.currentUser._id,
+    { questionSaved: req.currentUser.questionSaved },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if(!user) return next(new ErrorHandler('Question not found', 404));
   res.status(200).json({
     status: 'success',
   });
@@ -459,5 +549,7 @@ module.exports = {
   approveQuestion,
   disablePost,
   getMyPosts,
-  getMyPostsSaved
+  getMyPostsSaved,
+  saveQuestion,
+  unsaveQuestion,
 };

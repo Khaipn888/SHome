@@ -35,11 +35,23 @@ const createQuestion = CatchAsync(async (req, res, next) => {
 
 const getAllQuestions = CatchAsync(async (req, res, next) => {
   const search = req.query.search || '';
-  if(!req?.currentUser || req?.currentUser?.role  !== 'admin') req.query.status = 'active';
-  const questions = new APIFeatures(Question.find({ title: { $regex: search, $options: 'i' }}).populate({
-    path: 'createBy',
-    select: ['userName', 'avatar'],
-  }), req.query)
+  let status = ['active', 'pending', 'disable'];
+  if (!req?.currentUser || req?.currentUser?.role !== 'admin') {
+    status = ['active'];
+  }
+  if (req?.currentUser?.role !== 'admin' && req.query?.status) {
+    status = [req.query.status];
+  }
+  const questions = new APIFeatures(
+    Question.find({
+      title: { $regex: search, $options: 'i' },
+      status: { $in: status },
+    }).populate({
+      path: 'createBy',
+      select: ['userName', 'avatar'],
+    }),
+    req.query
+  )
     .filter()
     .sort()
     .limitFields()
