@@ -14,8 +14,8 @@ const notiSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['readed', 'not-read'],
-      default: 'not-read',
+      enum: ['readed', 'unread'],
+      default: 'unread',
     },
     category: {
       type: String,
