@@ -42,6 +42,10 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
     status = [req.query.status];
   }
   let search = req.query.search || '';
+  let category = ['cho-thue-tro', 'o-ghep'];
+  if(req.query?.category){
+    category = [ req.query.category ]
+  }
   let min_price = Number(req?.query?.min_price) || 0;
   let max_price = Number(req?.query?.max_price) || 50000000;
   let min_area = Number(req?.query?.min_area) || 0;
@@ -60,6 +64,7 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
       province: { $regex: province, $options: 'i' },
       district: { $regex: district, $options: 'i' },
       ward: { $regex: ward, $options: 'i' },
+      category: { $in: category }
     }).populate({
       path: 'createBy',
       select: ['userName', 'avatar'],

@@ -20,7 +20,8 @@ class APIFeatures {
       'province',
       'district',
       'ward',
-      'status'
+      'status',
+      'category'
     ];
     excludedFields.forEach((el) => delete queryObj[el]);
 
