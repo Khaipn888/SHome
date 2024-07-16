@@ -43,8 +43,12 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
   }
   let search = req.query.search || '';
   let category = ['cho-thue-tro', 'o-ghep'];
-  if(req.query?.category){
-    category = [ req.query.category ]
+  if (req.query?.category) {
+    if (req.query.category === 'pass-do') {
+      category = [''];
+    } else {
+      category = [req.query.category];
+    }
   }
   let min_price = Number(req?.query?.min_price) || 0;
   let max_price = Number(req?.query?.max_price) || 50000000;
@@ -54,6 +58,16 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
   let district = req?.query?.district || '';
   let ward = req?.query?.ward || '';
 
+  const p = await Post.find({
+    title: { $regex: search, $options: 'i' },
+    price: { $gte: min_price, $lte: max_price },
+    area: { $gte: min_area, $lte: max_area },
+    status: { $in: status },
+    province: { $regex: province, $options: 'i' },
+    district: { $regex: district, $options: 'i' },
+    ward: { $regex: ward, $options: 'i' },
+    category: { $in: category },
+  });
   const posts = new APIFeatures(
     Post.find({
       title: { $regex: search, $options: 'i' },
@@ -64,7 +78,7 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
       province: { $regex: province, $options: 'i' },
       district: { $regex: district, $options: 'i' },
       ward: { $regex: ward, $options: 'i' },
-      category: { $in: category }
+      category: { $in: category },
     }).populate({
       path: 'createBy',
       select: ['userName', 'avatar'],
@@ -76,12 +90,15 @@ const getAllFindMotelPosts = CatchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const result = await posts.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(p.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 

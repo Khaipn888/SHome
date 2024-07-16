@@ -3,7 +3,6 @@ class APIFeatures {
     this.query = query;
     this.queryString = queryString;
   }
-
   filter() {
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     const queryObj = { ...this.queryString };
