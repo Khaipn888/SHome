@@ -423,7 +423,7 @@ const approvePost = CatchAsync(async (req, res, next) => {
             content: 'Your post has been approved',
             notiFor: userId,
             category: 'approve',
-            idLink: post._id,
+            post: post._id,
           },
         ],
         { session }
@@ -435,7 +435,7 @@ const approvePost = CatchAsync(async (req, res, next) => {
           content: 'Your post has not been approved',
           notiFor: userId,
           category: 'not-approve',
-          idLink: postId,
+          post: postId,
         },
       ]);
     }
@@ -471,7 +471,7 @@ const approveQuestion = CatchAsync(async (req, res, next) => {
             content: 'Your question has been approved',
             notiFor: userId,
             category: 'approve',
-            idLink: question._id,
+            question: question._id,
           },
         ],
         { session }
@@ -483,7 +483,7 @@ const approveQuestion = CatchAsync(async (req, res, next) => {
           content: 'Your question has not been approved',
           notiFor: userId,
           category: 'not-approve',
-          idLink: questionId,
+          question: questionId,
         },
       ]);
     }
@@ -516,7 +516,7 @@ const disablePost = CatchAsync(async (req, res, next) => {
           content: 'Your post has been disable',
           notiFor: post.createBy,
           category: 'disable-post',
-          idLink: post._id,
+          post: post._id,
         },
       ],
       { session }

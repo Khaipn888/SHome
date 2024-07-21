@@ -19,7 +19,7 @@ const createPost = CatchAsync(async (req, res, next) => {
           content: 'User request to create new post',
           notiFor: admin._id,
           category: 'request-create-post',
-          idLink: newPost[0]._id,
+          post: newPost[0]._id,
         },
       ],
       { session }

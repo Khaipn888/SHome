@@ -19,9 +19,33 @@ const getNotifications = CatchAsync(async (req, res, next) => {
   const userId = req.params.id;
   if (userId !== req.currentUser._id.toString())
     return next(new ErrorHandler('You do not have permission', 403));
-
   const notifications = new APIFeatures(
-    Noti.find({ notiFor: userId, status: { $in: status } }),
+    Noti.find({ notiFor: userId, status: { $in: status } }).populate([
+      {
+        path: 'post',
+        strictPopulate: false,
+        populate: {
+          path: 'createBy',
+          select: ['userName', 'avatar'],
+        },
+      },
+      {
+        path: 'question',
+        strictPopulate: false,
+        populate: {
+          path: 'createBy',
+          select: ['userName', 'avatar'],
+        },
+      },
+      {
+        path: 'report',
+        strictPopulate: false,
+        populate: {
+          path: 'createBy',
+          select: ['userName', 'avatar'],
+        },
+      },
+    ]),
     req.query
   )
     .filter()

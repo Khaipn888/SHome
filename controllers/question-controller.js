@@ -19,7 +19,7 @@ const createQuestion = CatchAsync(async (req, res, next) => {
           content: 'User request to create new question',
           notiFor: admin._id,
           category: 'request-create-question',
-          idLink: newQuestion[0]._id,
+          question: newQuestion[0]._id,
         },
       ],
       { session }

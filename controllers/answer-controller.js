@@ -24,7 +24,7 @@ const createAnswer = CatchAsync(async (req, res, next) => {
           content: 'Your Question have new answer',
           notiFor: questtion.createBy,
           category: 'have-new-answer',
-          idLink: newAnswer[0]._id,
+          question:req.body.questionId,
         },
       ],
       { session }

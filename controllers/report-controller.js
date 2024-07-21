@@ -1,46 +1,57 @@
 const Report = require('../models/report-model');
-// const APIFeatures = require('../utils/APIFeatures');
+const APIFeatures = require('../utils/APIFeatures');
 const CatchAsync = require('../utils/CatchAsync');
 const ErrorHandler = require('../utils/ErrorHandler');
 const User = require('../models/user-model');
 const Noti = require('../models/notification-model');
 const { startSession } = require('mongoose');
 
-
 const createReport = CatchAsync(async (req, res, next) => {
-  
   const session = await startSession();
   req.body.createBy = req.currentUser._id;
-  session.withTransaction(
-    (async () => {
-      const admin = await User.findOne({ role: "admin" });
-      const newReport = await Report.create([req.body], { session });
-      const newNoti = await Noti.create(
-        [{
+  session.withTransaction(async () => {
+    const admin = await User.findOne({ role: 'admin' });
+    const newReport = await Report.create([req.body], { session });
+    const newNoti = await Noti.create(
+      [
+        {
           content: 'New report',
           notiFor: admin._id,
           category: 'report',
-          idLink: newReport[0]._id
-        }],
-        { session }
-      );
-      res.status(201).json({
-        status: 'success',
-        data: {
-          report: newReport,
+          report: newReport[0]._id,
         },
-      });
-    })
-  );
+      ],
+      { session }
+    );
+    res.status(201).json({
+      status: 'success',
+      data: {
+        report: newReport,
+      },
+    });
+  });
 });
 const getAllReports = CatchAsync(async (req, res, next) => {
-  
-  const reports = await Report.find();
+  const reports = new APIFeatures(
+    Report.find().populate({
+      path: 'postReported',
+      populate: {
+        path: 'createBy',
+        select: ['userName', 'avatar'],
+      },
+    }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await reports.query;
   res.status(200).json({
     status: 'success',
-    results: reports.length,
+    results: result.length,
     data: {
-      reports,
+      result,
     },
   });
 });

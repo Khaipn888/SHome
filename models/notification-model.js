@@ -34,10 +34,18 @@ const notiSchema = new mongoose.Schema(
       ],
       required: [true, 'missing category'],
     },
-    idLink: {
+    post: {
       type: mongoose.Schema.ObjectId,
-      required: [true, 'missing idLink'],
+      ref: 'Post'
     },
+    questtion: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Question'
+      },
+    report: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Report'
+    }
   },
   { timestamps: true }
 );
