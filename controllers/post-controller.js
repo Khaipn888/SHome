@@ -112,6 +112,12 @@ const getAllPassItemPosts = CatchAsync(async (req, res, next) => {
   }
 
   let search = req.query.search || '';
+
+  const p = await Post.find({
+    title: { $regex: search, $options: 'i' },
+    category: 'pass-do',
+    status: { $in: status },
+  });
   const posts = new APIFeatures(
     Post.find({
       title: { $regex: search, $options: 'i' },
@@ -128,12 +134,15 @@ const getAllPassItemPosts = CatchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const result = await posts.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(p.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 
