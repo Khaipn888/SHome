@@ -5,6 +5,7 @@ const ErrorHandler = require('../utils/ErrorHandler');
 const { startSession } = require('mongoose');
 const User = require('../models/user-model');
 const Noti = require('../models/notification-model');
+const Vote = require('../models/vote-model');
 
 const createQuestion = CatchAsync(async (req, res, next) => {
   const session = await startSession();
@@ -84,8 +85,21 @@ const getQuestionById = CatchAsync(async (req, res, next) => {
     return next(new ErrorHandler('No Question found!', 404));
   }
 
+  let isVoted;
+  const vote = await Vote.find({
+    voteFor: req.params.id,
+    voteBy: req.currentUser._id,
+  });
+
+  if (!vote) {
+    isVoted = false;
+  } else {
+    isVoted = true;
+  }
+
   res.status(200).json({
     status: 'success',
+    isVoted: isVoted,
     data: {
       question,
     },
