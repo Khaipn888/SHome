@@ -4,6 +4,7 @@ const CatchAsync = require('../utils/CatchAsync');
 const ErrorHandler = require('../utils/ErrorHandler');
 
 const createComment = CatchAsync(async (req, res, next) => {
+  req.body.createBy = req.currentUser._id;
   const newComment = await Comment.create(req.body);
 
   res.status(201).json({
@@ -15,14 +16,30 @@ const createComment = CatchAsync(async (req, res, next) => {
 });
 
 const getAllComments = CatchAsync(async (req, res, next) => {
-  
-  const comments = await Comment.find();
+  const answerId = req.params.answerId;
+  const c = await Comment.find({ commentFor: answerId });
+
+  const comments = new APIFeatures(
+    Comment.find().populate({
+      path: 'createBy',
+      select: ['userName', 'avatar'],
+    }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await comments.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(c.length / limit);
   res.status(200).json({
     status: 'success',
-    results: comments.length,
-    data: {
-      comments,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 

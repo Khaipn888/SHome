@@ -6,7 +6,7 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A post must have a title'],
   },
-  reply_to: {
+  commentFor: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },

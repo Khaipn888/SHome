@@ -13,7 +13,7 @@ const commentRouter = express.Router();
 
 commentRouter
   .post('/', checkAndVerifyToken, createComment)
-  .get('/', getAllComments)
+  .get('/:answerId', getAllComments)
   .get('/:id', getCommentById)
   .patch('/:id', checkAndVerifyToken, updateComment)
   .delete('/:id', checkAndVerifyToken, deleteComment);
