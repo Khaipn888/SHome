@@ -24,7 +24,7 @@ const createAnswer = CatchAsync(async (req, res, next) => {
           content: 'Your Question have new answer',
           notiFor: questtion.createBy,
           category: 'have-new-answer',
-          question:req.body.questionId,
+          question: req.body.questionId,
         },
       ],
       { session }
@@ -33,33 +33,46 @@ const createAnswer = CatchAsync(async (req, res, next) => {
       status: 'success',
       data: {
         answer: newAnswer,
-        que
+        que,
       },
     });
   });
 });
 
 const getAllAnswers = CatchAsync(async (req, res, next) => {
-  const answers = new APIFeatures(Answer.find().populate({
+  const questionId = req.params.questionId;
+  const a = await Answer.find({ questionId: questionId }).populate({
     path: 'createBy',
     select: ['userName', 'avatar'],
-  }), req.query)
-  .filter()
-  .sort()
-  .limitFields()
-  .paginate();
-const result = await answers.query;
+  });
+
+  const answers = new APIFeatures(
+    Answer.find().populate({
+      path: 'createBy',
+      select: ['userName', 'avatar'],
+    }),
+    req.query
+  )
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  const result = await answers.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(a.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 
 const getAnswersOfQuestion = CatchAsync(async (req, res, next) => {
-  const answers = await Answer.find();
+  const questionId = req.params.questionId;
+  const answers = await Answer.find({ questionId: questionId });
   res.status(200).json({
     status: 'success',
     results: reports.length,
@@ -68,7 +81,6 @@ const getAnswersOfQuestion = CatchAsync(async (req, res, next) => {
     },
   });
 });
-
 
 const getAnswerById = CatchAsync(async (req, res, next) => {
   const answer = await Answer.findById(req.params.id);

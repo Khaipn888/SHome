@@ -32,6 +32,13 @@ const createReport = CatchAsync(async (req, res, next) => {
   });
 });
 const getAllReports = CatchAsync(async (req, res, next) => {
+  const r = await Report.find().populate({
+    path: 'postReported',
+    populate: {
+      path: 'createBy',
+      select: ['userName', 'avatar'],
+    },
+  });
   const reports = new APIFeatures(
     Report.find().populate({
       path: 'postReported',
@@ -47,15 +54,17 @@ const getAllReports = CatchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const result = await reports.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(r.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
-
 const getReportById = CatchAsync(async (req, res, next) => {
   const report = await Report.findById(req.params.id);
 

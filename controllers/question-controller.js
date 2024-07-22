@@ -42,6 +42,14 @@ const getAllQuestions = CatchAsync(async (req, res, next) => {
   if (req?.currentUser?.role !== 'admin' && req.query?.status) {
     status = [req.query.status];
   }
+  const q = await Question.find({
+    title: { $regex: search, $options: 'i' },
+    status: { $in: status },
+  }).populate({
+    path: 'createBy',
+    select: ['userName', 'avatar'],
+  });
+
   const questions = new APIFeatures(
     Question.find({
       title: { $regex: search, $options: 'i' },
@@ -57,12 +65,15 @@ const getAllQuestions = CatchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const result = await questions.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(q.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 

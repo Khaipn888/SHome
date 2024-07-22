@@ -13,7 +13,7 @@ const answerRouter = express.Router();
 
 answerRouter
   .post('/', checkAndVerifyToken, createAnswer)
-  .get('/', getAllAnswers)
+  .get('/:questionId', getAllAnswers)
   .get('/:id', getAnswerById)
   .patch('/:id', checkAndVerifyToken, updateAnswer)
   .delete('/:id', checkAndVerifyToken, deleteAnswer);

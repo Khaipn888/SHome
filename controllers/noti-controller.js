@@ -19,6 +19,8 @@ const getNotifications = CatchAsync(async (req, res, next) => {
   const userId = req.params.id;
   if (userId !== req.currentUser._id.toString())
     return next(new ErrorHandler('You do not have permission', 403));
+
+  const n = await Noti.find({ notiFor: userId, status: { $in: status } });
   const notifications = new APIFeatures(
     Noti.find({ notiFor: userId, status: { $in: status } }).populate([
       {
@@ -53,12 +55,15 @@ const getNotifications = CatchAsync(async (req, res, next) => {
     .limitFields()
     .paginate();
   const result = await notifications.query;
+  const limit = Number(req.query.limit) || 10;
+  const currentPage = Number(req.query.page) || 1;
+  const totalPage = Math.ceil(n.length / limit);
   res.status(200).json({
     status: 'success',
-    results: result.length,
-    data: {
-      result,
-    },
+    currentPage,
+    totalPage,
+    itemsPerPage: limit,
+    data: [...result],
   });
 });
 
